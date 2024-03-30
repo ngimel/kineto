@@ -256,8 +256,13 @@ inline const std::string RuntimeActivity::metadataJson() const {
       activity_.cbid, activity_.correlationId);
 }
 
+inline bool isKernelLaunchApi(const CUpti_ActivityAPI& activity_) {
+  return activity_.cbid == CUPTI_DRIVER_TRACE_CBID_cuLaunchKernel ||
+         activity_.cbid == CUPTI_DRIVER_TRACE_CBID_cuLaunchKernelEx;
+}
+
 inline bool DriverActivity::flowStart() const {
-  return activity_.cbid == CUPTI_DRIVER_TRACE_CBID_cuLaunchKernel;
+  return isKernelLaunchApi(activity_);
 }
 
 inline const std::string DriverActivity::metadataJson() const {
@@ -268,8 +273,15 @@ inline const std::string DriverActivity::metadataJson() const {
 
 inline const std::string DriverActivity::name() const {
   // currently only cuLaunchKernel is expected
-  assert(activity_.cbid == CUPTI_DRIVER_TRACE_CBID_cuLaunchKernel);
-  return "cuLaunchKernel";
+  assert(isKernelLaunchApi(activity_));
+  // not yet implementing full name matching
+  if (activity_.cbid == CUPTI_DRIVER_TRACE_CBID_cuLaunchKernel) {
+    return "cuLaunchKernel";
+  } else if (activity_.cbid == CUPTI_DRIVER_TRACE_CBID_cuLaunchKernelEx) {
+    return "cuLaunchKernelEx";
+  } else {
+    return "Unknown"; // should not reach here
+  }
 }
 
 template<class T>

@@ -438,7 +438,7 @@ void CuptiActivityProfiler::handleDriverActivity(
     const CUpti_ActivityAPI* activity,
     ActivityLogger* logger) {
   // we only want to collect cuLaunchKernel events, for triton kernel launches
-  if (activity->cbid != CUPTI_DRIVER_TRACE_CBID_cuLaunchKernel) {
+  if (!isKernelLaunchApi(*activity)) {
     return;
   }
   VLOG(2) << activity->correlationId
